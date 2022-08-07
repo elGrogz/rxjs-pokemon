@@ -1,4 +1,4 @@
-import { BehaviorSubject, map } from "rxjs";
+import { BehaviorSubject, map, combineLatestWith } from "rxjs";
 
 export interface Pokemon {
     id: number;
@@ -11,6 +11,7 @@ export interface Pokemon {
     special_defense: number;
     speed: number;
     power?: number;
+    selected?: boolean;
 }
 
 // create an observable subject
@@ -31,6 +32,19 @@ export const pokemonWithPower$ = rawPokemon$.pipe(
             }))
     )
 );
+
+export const selected$ = new BehaviorSubject<number[]>([]);
+
+export const pokemon$ = pokemonWithPower$.pipe(
+    combineLatestWith(selected$),
+    map(([pokemon, selected]) => 
+      pokemon.map((p) => ({
+        ...p,
+        selected: selected.includes(p.id),
+      }))
+    )
+)
+
 
 // get the data from the file, get the response as json, then set the next value of the observable as the data
 fetch('/pokemon-data.json')

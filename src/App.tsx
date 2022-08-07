@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import './App.css';
 
 // import the obervable subect
-import { pokemonWithPower$, Pokemon } from "./store"
+import { pokemon$, Pokemon, selected$ } from "./store"
 // import { rawPokemon$ } from "./store"
 
 const Search = () => {
@@ -16,7 +16,7 @@ const Search = () => {
   useEffect(() => {
     // subscribe to the observable which returns the list of pokemon after it's fetched and then set the
     // state to be the full list
-    const subscription = pokemonWithPower$.subscribe(setPokemon);
+    const subscription = pokemon$.subscribe(setPokemon);
 
     // when the component unmounts, unsubscribe from the observable
     return () => subscription.unsubscribe();
@@ -36,6 +36,15 @@ const Search = () => {
         {/* show the filtered pokemon with a map function */}
         {filteredPokemon.map((p) => (
           <div key={p.name}>
+            <input type="checkbox" 
+              checked={p.selected }
+              onChange={() => {
+                if (selected$.value.includes(p.id)) {
+                  selected$.next(selected$.value.filter((id) => id !== p.id))
+                } else {
+                  selected$.next([...selected$.value, p.id])
+                }
+              }}/>
             <strong>{p.name}:</strong> {p.power}
           </div>
         ))}
